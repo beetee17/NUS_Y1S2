@@ -1,0 +1,43 @@
+jshell> Person illio = new Person("Illio");
+jshell> Person phillmont = new Person("Phillmont")
+jshell> Person nicole = new Person("Nicole")
+jshell> Person shuming = new Person("Shuming")
+jshell> illio.infectWith(List.of(new AlphaCoronavirus(1)), 0);
+jshell> phillmont.infectWith(List.of(new AlphaCoronavirus(0.5)), 0);
+jshell> nicole.infectWith(List.of(new SARS_CoV_2(0.5), new AlphaCoronavirus(0.4)), 0);
+jshell> shuming.infectWith(List.of(new AlphaCoronavirus(0.1)), 0);
+jshell> Arrays.toString(illio.transmit(1).toArray())
+$.. ==> "[SARS-CoV-2 with 1.000 probability of mutating]"
+jshell> Arrays.toString(illio.transmit(1).toArray())
+$.. ==> "[SARS-CoV-2 with 1.000 probability of mutating]"
+jshell> Arrays.toString(phillmont.transmit(0.51).toArray())
+$.. ==> "[Alpha Coronavirus with 0.450 probability of mutating]"
+jshell> Arrays.toString(phillmont.transmit(0.5).toArray())
+$.. ==> "[SARS-CoV-2 with 0.500 probability of mutating]"
+jshell> Arrays.toString(nicole.transmit(0.51).toArray())
+$.. ==> "[SARS-CoV-2 with 0.450 probability of mutating, Alpha Coronavirus with 0.360 probability of mutating]"
+jshell> Arrays.toString(nicole.transmit(0.5).toArray())
+$.. ==> "[Beta Coronavirus with 0.000 probability of mutating, Alpha Coronavirus with 0.360 probability of mutating]"
+jshell> Arrays.toString(nicole.transmit(0.4).toArray())
+$.. ==> "[Beta Coronavirus with 0.000 probability of mutating, SARS-CoV-2 with 0.400 probability of mutating]"
+jshell> List<? extends Virus> l = illio.transmit(1)
+jshell> shuming.infectWith(l, 1);
+jshell> Arrays.toString(shuming.transmit(1).toArray())
+$.. ==> "[Alpha Coronavirus with 0.090 probability of mutating, Beta Coronavirus with 0.000 probability of mutating]"
+jshell> Arrays.toString(shuming.transmit(0).toArray())
+$.. ==> "[SARS-CoV-2 with 0.100 probability of mutating, Beta Coronavirus with 0.000 probability of mutating]"
+jshell> illio.test("Alpha Coronavirus")
+$.. ==> true
+jshell> illio.test("SARS-CoV-2")
+$.. ==> false
+jshell> illio.test("Beta Coronavirus")
+$.. ==> false
+jshell> phillmont.test("Alpha Coronavirus")
+$.. ==> true
+jshell> nicole.test("SARS-CoV-2")
+$.. ==> true
+jshell> shuming.test("Beta Coronavirus")
+$.. ==> false
+jshell> phillmont.getName()
+$.. ==> "Phillmont"
+jshell> /exit
