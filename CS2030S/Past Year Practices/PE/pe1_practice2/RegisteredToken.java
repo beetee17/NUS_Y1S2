@@ -1,12 +1,13 @@
-class RegisteredToken extends Token {
-    private final Registry registry;
+public class RegisteredToken extends Token {
 
-    RegisteredToken(Token t, Registry r) {
-        super(t.getId(), t.getPings());
-        this.registry = r;
-    }
+  private Registry r;
 
-    void contact() {
-        new DataStore().write("Test contact");
-    }
+  public RegisteredToken(Token t, Registry r) {
+    super(t);
+    this.r = r;
+  }
+
+  public void contact() {
+    r.store("Test contact");
+  }
 }

@@ -12,4 +12,3 @@ s = s.add(new Tutorial("CS2030", 4, "SR8", new Instructor("ehan"), 15))
 s = s.add(new Tutorial("CS2030", 3, "SR7", new Instructor("dlee"), 15))
 s = s.add(new Tutorial("CS2030", 2, "SR7", new Instructor("hchia"), 14))
 System.out.println(s)
-/exit

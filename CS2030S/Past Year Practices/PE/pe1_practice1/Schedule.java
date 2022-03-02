@@ -1,49 +1,26 @@
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
 
-class Schedule implements Iterable<Class> {
-    private final List<Class> schedule;
+public class Schedule {
+  private List<ScheduledClass> classes = new ArrayList<>();
 
-    @Override
-    public Iterator<Class> iterator() {
-        return this.schedule.iterator();
+  public Schedule add(ScheduledClass newClass) {
+    for (ScheduledClass c : this.classes) {
+      if (c.clashWith(newClass)) {
+        return this;
+      }
     }
+    this.classes.add(newClass);
+    return this;
+  }
 
-    Schedule() {
-        this.schedule = new ArrayList<Class>();
-    }
-
-    private Schedule(List<Class> cList) {
-        this.schedule = cList;
-    }
-
-    Schedule add(Class newClass) {
-        List<Class> newList = new ArrayList<Class>();
-        boolean noClash = true;
-
-        for (Class c : this.schedule) {
-            newList.add(c);
-            if (newClass.clashWith(c)) {
-                noClash = false;
-            }
-        }
-
-        if (noClash) {
-            newList.add(newClass);
-        }
-        newList.sort(null);
-        return new Schedule(newList);
-    }
-
-    @Override
-    public String toString() {
-        String result = "";
-        for (int i = 0; i < this.schedule.size() - 1; i++) {
-            result += this.schedule.get(i) + "\n";
-        }
-        result += this.schedule.get(this.schedule.size() - 1);
-
-        return result;
-    }
+ @Override
+ public String toString() {
+   Collections.sort(this.classes);
+   String str = "";
+   for (ScheduledClass c : classes) 
+    str += c.toString() + "\n";
+   return str;
+ }
 }

@@ -1,27 +1,22 @@
-class SafeEntry extends Token {
-    private final int time;
+public class SafeEntry extends Token {
+  DataStore store = new DataStore();
+  public SafeEntry(int id, int time) {
+    super(id);
+    super.ping(new Token(id), time);
+  }
+  
+  public SafeEntry(int id) {
+    super(id);
+  }
 
-    SafeEntry(int id, int time) {
-        super(id); 
-        this.time = time;
-    }
+  @Override
+  public SafeEntry checkPings(int time) {
+    int pings = super.checkPings(time).getPingCount();
+    return pings == 0 ? new SafeEntry(super.getID()) : this;
+  }
 
-    @Override
-    boolean isSafeEntry() {
-        return true;
-    }
-
-    @Override
-    public int getTime() {
-        return this.time;
-    }
-
-    @Override 
-    public String toString() {
-        if (this.time != -1) {
-            return "SafeEntry #" + this.getId() + "@" + this.time;
-        } else {
-            return "SafeEntry #" + this.getId() + ": none";
-        }
-    }
+  @Override
+  public String getPrefix() {
+    return super.hasNoPings() ? String.format("SafeEntry #%d:", super.getID()) : "SafeEntry";
+  }
 }

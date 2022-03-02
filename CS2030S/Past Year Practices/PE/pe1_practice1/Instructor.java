@@ -1,21 +1,24 @@
-class Instructor {
-    private final String name;
+public class Instructor {
+  private String name;
+  
+  public Instructor(String name) {
+    this.name = name;
+  }
 
-    Instructor(String name) {
-        this.name = name;
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+
+    if (obj instanceof Instructor) {
+      Instructor other = (Instructor) obj;
+      return this.name.equals(other.name);
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (other instanceof Instructor) {
-            return this.name.equals(((Instructor) other).name);
-        } else {
-            return false;
-        }
-    }
+    return false;
+  }
 
-    @Override
-    public String toString() {
-        return this.name;
-    }
+  @Override
+  public String toString() {
+    return this.name;
+  }
 }

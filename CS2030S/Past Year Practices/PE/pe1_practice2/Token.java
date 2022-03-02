@@ -1,52 +1,65 @@
-class Token {
-    private final int id;
-    private final String[] pings;
-    private static final int MAX_TOKENS = 20;
+public class Token {
 
-    Token(int id) {
-        this(id, new String[MAX_TOKENS]);
-    }
+  private int id;
+  private Ping[] pings = new Ping[20];
 
-    public int getId() {
-        return this.id;
-    }
+  public Token(int id) {
+    this.id = id;
+  }
 
-    public String[] getPings() {
-        return this.pings;
-    }
+  public Token(Token t) {
+    this.id = t.id;
+    this.pings = t.pings;
+  }
 
-    Token(int id, String[] pings) {
-        this.id = id;
-        this.pings = pings;
-    }
+  public boolean hasNoPings() {
+    return getPingCount() == 0;
+  }
 
-    boolean isSafeEntry() {
-        return false;
-    }
+  public int getPingCount() {
+    int count = 0;
+    for (Ping p : this.pings) 
+      if (p != null) count++; 
+    return count;
 
-    public int getTime() {
-        return -1;
-    }
+  }
 
-    Token ping(Token tk, int t) {
-        String[] newPings = new String[MAX_TOKENS];
-        for (int i = 0; i < MAX_TOKENS; i++) {
-            newPings[i] = this.pings[i];
-        }
-        newPings[tk.getId() - 1] = "#" + tk.getId() + "@" + t;
-        return new Token(this.id, newPings);
+  public Token checkPings(int time) {
+    Token newToken = new Token(this.id);
+    int n = this.pings.length;
+    Ping[] pings = new Ping[n];
+    for (int i = 0 ; i < n; i++) {
+      Ping p = this.pings[i];
+      if (p != null && p.check(time))
+        newToken.pings[i] = p;
     }
+    return newToken;
+  }
 
-    @Override
-    public String toString() {
-        String result = "Token #" + this.id + ":";
-        boolean havePing = false;
-        for (String s : this.pings) {
-            if (s != null) {
-                result += " " + s;
-                havePing = true;
-            }
-        }
-        return result + (havePing ? "" : " none");
+  public String getPrefix() {
+    return String.format("Token #%d:", this.id);
+  }
+
+  @Override
+  public String toString() {
+    if (this.hasNoPings()) {
+      return String.format("%s none", this.getPrefix());
+    } else {
+      String str =  this.getPrefix();
+      for (Ping p : this.pings) {
+        if (p != null) str += " " + p;
+      }
+      return str;
     }
+  }
+
+  public int getID() {
+    return this.id;
+  }
+
+  public Token ping(Token other, int time) {
+    this.pings[other.id - 1] = new Ping(other, time);
+    return this;
+  }
 }
+

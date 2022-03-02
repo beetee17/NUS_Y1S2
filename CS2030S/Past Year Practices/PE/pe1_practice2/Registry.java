@@ -1,65 +1,53 @@
-class Registry {
-    /*
-    private final String stub;
-    private final Token[] tokens;
-    private static final int MAX_TOKENS = 20;
+public class Registry {
+  private DataStore store = new DataStore();
+  private String id;
+  private Token[] tokens = new Token[20];
 
-    Registry(String s, Token[] t) {
-        this.stub = s;
-        this.tokens = t;
+  public Registry(String id) {
+    this.id = id;
+  }
+
+  public Registry(String id, Token[] tokens) {
+    this.id = id;
+    for (Token t : tokens) {
+      this.tokens[this.numTokens()] = t;
+    }
+  }
+
+  public Registry add(Token t) {
+    Token[] newTokens = new Token[20];
+    for (int i = 0; i < this.numTokens(); i++)
+      newTokens[i] = this.tokens[i];
+    newTokens[this.numTokens()] = t;
+    return new Registry(this.id, newTokens);
+  }
+
+  public void store(String s) {
+    store.write(s);
+  }
+
+  public int numTokens() {
+    int count = 0;
+    for (Token t : this.tokens)
+      if (t != null) count++;
+    return count;
+  }
+
+  public void alert(int time) {
+    for (Token t : this.tokens)
+      if (t != null) 
+        this.store.write(t.checkPings(time).toString());
+  }
+
+  @Override
+  public String toString() {
+    String str = String.format("[%s]: %d tokens registered", this.id, this.numTokens());
+
+    for (Token t : this.tokens) {
+      if (t != null)
+        str += "\n" + t.toString();
     }
 
-    Registry(String s) {
-        this(s, new Token[MAX_TOKENS]);
-    }
-
-    Registry() {
-        this("");
-    }
-    */
-
-    void store(String s) {
-        new DataStore().write(s);
-    }
-
-    void alert(int t) {}
-
-    Registry add(Token t) {
-        return this;
-    }
-    
-    /*
-    void alert(int t) {
-        for (Token token : this.tokens) {
-            if (token != null) {
-                String[] pingSplit = token.getPings();
-                int[] pingTime = new int[MAX_TOKENS];
-                for (int i = 0; i < MAX_TOKENS; i++) {
-                    if (pingSplit[i] != null)
-                        pingTime[i] = Integer.parseInt(pingSplit[i].split("@")[1]);
-                }
-
-                String[] newPings = new String[MAX_TOKENS];
-                for (int j = 0; j < MAX_TOKENS; j++) {
-                    if (pingTime[j] == t) {
-                        newPings[j] = pingSplit[j];
-                    }
-                }
-
-                this.store((new Token(token.getId(), newPings)).toString());
-            }
-        }
-    }
-
-    Registry add(Token tok) {
-        Token[] newTokens = new Token[MAX_TOKENS];
-        for (Token t: this.tokens) {
-            if (t != null) {
-                newTokens[t.getId()] = t;
-            }
-        }
-        newTokens[tok.getId()] = tok;
-        return new Registry(this.stub, newTokens);
-    }
-    */
+    return str;
+  }
 }

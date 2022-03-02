@@ -1,16 +1,17 @@
-class RegistryStub extends Registry {
-    private final String stub;
+public class RegistryStub extends Registry {
+  private String stub;
 
-    RegistryStub(String s) {
-        this.stub = s;
-    }
-
-    RegistryStub() {
-        this.stub = "";
-    }
-
-    @Override
-    public String toString() {
-        return "[" + this.stub + "]";
-    }
+  public RegistryStub(String s) {
+    super(s);
+    this.stub = s;
+  }
+  public RegistryStub() {
+    super("");
+    this.stub = "";
+  }
+  
+  @Override
+  public String toString() {
+    return String.format("[%s]", this.stub);
+  }
 }
