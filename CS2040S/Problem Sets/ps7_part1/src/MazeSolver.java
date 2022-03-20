@@ -70,7 +70,7 @@ public class MazeSolver implements IMazeSolver {
 					int nextRow = curr.x + DELTAS[d][0];
 					int nextCol = curr.y + DELTAS[d][1];
 					Room next = this.maze.getRoom(nextRow, nextCol);
-					if (!visited[nextRow][nextCol]) {
+					if (!this.visited[nextRow][nextCol]) {
 						q.add(next);
 						next.parent = curr;
 					}
@@ -124,8 +124,9 @@ public class MazeSolver implements IMazeSolver {
 					int nextRow = curr.x + DELTAS[d][0];
 					int nextCol = curr.y + DELTAS[d][1];
 					Room next = this.maze.getRoom(nextRow, nextCol);
-					if (!visited[nextRow][nextCol]) {
+					if (!this.visited[nextRow][nextCol]) {
 						q.add(next);
+						this.visited[nextRow][nextCol] = true; // do not double count
 						numForNextStep++;
 					}
 				}
@@ -145,8 +146,8 @@ public class MazeSolver implements IMazeSolver {
 			IMazeSolver solver = new MazeSolver();
 			solver.initialize(maze);
 
-			System.out.println(solver.pathSearch(3, 0, 0, 0));
-			ImprovedMazePrinter.printMaze(maze);
+			System.out.println(solver.pathSearch(1, 1, 2, 3));
+//			ImprovedMazePrinter.printMaze(maze);
 //			MazePrinter.printMaze(maze);
 
 			for (int i = 0; i <= 9; ++i) {
