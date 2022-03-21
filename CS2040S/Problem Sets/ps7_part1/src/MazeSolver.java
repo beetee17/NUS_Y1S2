@@ -10,10 +10,10 @@ public class MazeSolver implements IMazeSolver {
 		{ 0, -1 } // West
 	};
 
-	private int startRow;
-	private int startCol;
 	private Maze maze;
 	private boolean[][] visited;
+	private ArrayList<Integer> numReachables;
+	private boolean solved;
 
 	public MazeSolver() {
 		// TODO: Initialize variables.
@@ -22,27 +22,25 @@ public class MazeSolver implements IMazeSolver {
 	@Override
 	public void initialize(Maze maze) {
 		this.maze = maze;
+		this.solved = false;
+		this.numReachables = new ArrayList<>();
+		this.numReachables.add(1);
 		this.visited = new boolean[maze.getRows()][maze.getColumns()];
 		for (int i = 0; i < maze.getRows(); i++) {
 			for (int j = 0; j < maze.getColumns(); j++) {
 				this.visited[i][j] = false;
+				this.maze.getRoom(i, j).parent = null;
 			}
 		}
 	}
 
 	@Override
 	public Integer pathSearch(int startRow, int startCol, int endRow, int endCol) throws Exception {
-		// set all visited flag to false
-		// before we begin our search
-		for (int i = 0; i < maze.getRows(); ++i) {
-			for (int j = 0; j < maze.getColumns(); ++j) {
-				this.visited[i][j] = false;
-				maze.getRoom(i, j).onPath = false;
-			}
-		}
-		// used to remember starting point of last search for numReachable
-		this.startRow = startRow;
-		this.startCol = startCol;
+		// reset the solver
+		this.initialize(this.maze);
+
+		int numTillNextStep = 1;
+		int numForNextStep = 0;
 
 		Room source = this.maze.getRoom(startRow, startCol);
 		Room target = this.maze.getRoom(endRow, endCol);
@@ -52,33 +50,54 @@ public class MazeSolver implements IMazeSolver {
 
 		while(!q.isEmpty()) {
 			Room curr = q.remove(0);
-			this.visited[curr.x][curr.y] = true;
+			this.visited[curr.row][curr.col] = true;
+			numTillNextStep--;
 
-			if (curr == target) {
-				curr.onPath = true;
-				int pathLength = 0;
-				while (curr.parent != null) {
-					curr.onPath = true;
-					curr = curr.parent;
-					pathLength++;
-				}
-				return pathLength;
-			}
+			if (curr == target) this.solved = true;
 
-			for (int d = 0; d < 4; d++) {
-				if (canGoInDirection(d, curr)) {
-					int nextRow = curr.x + DELTAS[d][0];
-					int nextCol = curr.y + DELTAS[d][1];
-					Room next = this.maze.getRoom(nextRow, nextCol);
-					if (!this.visited[nextRow][nextCol]) {
-						q.add(next);
-						next.parent = curr;
-					}
-				}
+			ArrayList<Room> nextRooms = processCurrent(curr);
+			q.addAll(nextRooms);
+			numForNextStep += nextRooms.size();
+
+			if (numTillNextStep == 0) {
+				this.numReachables.add(numForNextStep);
+				numTillNextStep += numForNextStep;
+				numForNextStep = 0;
 			}
 		}
 
-		return null;
+		return tracePathFrom(target);
+	}
+	private ArrayList<Room> processCurrent(Room room) {
+		ArrayList<Room> nextRooms = new ArrayList<>();
+		for (int d = 0; d < 4; d++) {
+			if (canGoInDirection(d, room)) {
+				int nextRow = room.row + DELTAS[d][0];
+				int nextCol = room.col + DELTAS[d][1];
+				Room next = this.maze.getRoom(nextRow, nextCol);
+				if (!this.visited[nextRow][nextCol]) {
+					nextRooms.add(next);
+					if (!solved) next.parent = room;
+					this.visited[nextRow][nextCol] = true; // do not double count
+				}
+			}
+		}
+		return nextRooms;
+	}
+
+	private Integer tracePathFrom(Room target) {
+		if (solved) {
+			target.onPath = true;
+			int pathLength = 0;
+			while (target.parent != null) {
+				target.onPath = true;
+				target = target.parent;
+				pathLength++;
+			}
+			return pathLength;
+		} else {
+			return null;
+		}
 	}
 
 	private boolean canGoInDirection(int d, Room room) {
@@ -99,45 +118,8 @@ public class MazeSolver implements IMazeSolver {
 
 	@Override
 	public Integer numReachable(int k) throws Exception {
-
-		for (int i = 0; i < maze.getRows(); ++i)
-			for (int j = 0; j < maze.getColumns(); ++j)
-				this.visited[i][j] = false;
-
-		Room source = this.maze.getRoom(this.startRow, this.startCol);
-		int numTillNextStep = 1;
-		int currStep = 0;
-		int numForNextStep = 0;
-
-		ArrayList<Room> q = new ArrayList<>();
-		q.add(source);
-
-		while(!q.isEmpty()) {
-			if (currStep == k) return numTillNextStep;
-
-			Room curr = q.remove(0);
-			this.visited[curr.x][curr.y] = true;
-			numTillNextStep--;
-
-			for (int d = 0; d < 4; d++) {
-				if (canGoInDirection(d, curr)) {
-					int nextRow = curr.x + DELTAS[d][0];
-					int nextCol = curr.y + DELTAS[d][1];
-					Room next = this.maze.getRoom(nextRow, nextCol);
-					if (!this.visited[nextRow][nextCol]) {
-						q.add(next);
-						this.visited[nextRow][nextCol] = true; // do not double count
-						numForNextStep++;
-					}
-				}
-			}
-			if (numTillNextStep == 0) {
-				currStep++;
-				numTillNextStep += numForNextStep;
-				numForNextStep = 0;
-			}
-		}
-		return 0;
+		if (k >= 0 && k < this.numReachables.size()) return this.numReachables.get(k);
+		else return 0;
 	}
 
 	public static void main(String[] args) {
@@ -146,7 +128,7 @@ public class MazeSolver implements IMazeSolver {
 			IMazeSolver solver = new MazeSolver();
 			solver.initialize(maze);
 
-			System.out.println(solver.pathSearch(1, 1, 2, 3));
+			System.out.println(solver.pathSearch(0, 0, 3, 3));
 //			ImprovedMazePrinter.printMaze(maze);
 //			MazePrinter.printMaze(maze);
 
