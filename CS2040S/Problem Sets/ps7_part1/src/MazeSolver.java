@@ -57,6 +57,14 @@ public class MazeSolver implements IMazeSolver {
 
 	@Override
 	public Integer pathSearch(int startRow, int startCol, int endRow, int endCol) throws Exception {
+		if (maze == null)
+			throw new Exception("Oh no! You cannot call me without initializing the maze!");
+
+
+		if (startRow < 0 || startCol < 0 || startRow >= maze.getRows() || startCol >= maze.getColumns() ||
+				endRow < 0 || endCol < 0 || endRow >= maze.getRows() || endCol >= maze.getColumns())
+			throw new IllegalArgumentException("Invalid start/end coordinate");
+
 		// reset the solver
 		this.initialize(this.maze);
 
@@ -72,13 +80,13 @@ public class MazeSolver implements IMazeSolver {
 		Integer answer = null;
 
 		while(!q.isEmpty()) {
-			Point curr = q.remove(0);
-			this.visited[curr.getRow()][curr.getCol()] = true;
+			Point p = q.remove(0);
+			this.visited[p.getRow()][p.getCol()] = true;
 			numTillNextStep--;
 
-			if (curr.equals(target)) answer = this.numReachables.size() - 1;
+			if (p.equals(target)) answer = this.numReachables.size() - 1;
 
-			ArrayList<Point> nextFrontier = processCurrent(curr);
+			ArrayList<Point> nextFrontier = processCurrent(p);
 			q.addAll(nextFrontier);
 			numForNextStep += nextFrontier.size();
 
@@ -88,9 +96,9 @@ public class MazeSolver implements IMazeSolver {
 				numForNextStep = 0;
 			}
 		}
-
 		return answer;
 	}
+
 	private ArrayList<Point> processCurrent(Point p) {
 		ArrayList<Point> nextFrontier = new ArrayList<>();
 		for (int d = 0; d < 4; d++) {
@@ -129,36 +137,36 @@ public class MazeSolver implements IMazeSolver {
 		else return 0;
 	}
 
-	public static void main(String[] args) {
-		try {
-			Maze maze = Maze.readMaze("maze-empty.txt");
-			IMazeSolver solver = new MazeSolver();
-			IMazeSolver naiveSolver = new MazeSolverNaive();
-
-			solver.initialize(maze);
-			naiveSolver.initialize(maze);
-
-			for (int i = 0; i < maze.getRows(); i ++) {
-				for (int j = 0; j < maze.getColumns(); j++) {
-					int endRow = (int) (Math.random() * maze.getRows());
-					int endCol = (int) (Math.random() * maze.getColumns());
-					System.out.println("from " + i + " to " + endRow);
-					System.out.println("from " + j + " to " + endCol);
-
-					Integer bfs = solver.pathSearch(i, j, endRow, endCol);
-					Integer dfs = naiveSolver.pathSearch(i, j, endRow, endCol);
-					System.out.println("BFS: " + bfs + ", " + dfs + "\n");
-				}
-			}
-
-			ImprovedMazePrinter.printMaze(maze);
-			MazePrinter.printMaze(maze);
-
-			for (int i = 0; i <= 9; ++i) {
-				System.out.println("Steps " + i + " Rooms: " + solver.numReachable(i));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+//	public static void main(String[] args) {
+//		try {
+//			Maze maze = Maze.readMaze("maze-empty.txt");
+//			IMazeSolver solver = new MazeSolver();
+//			IMazeSolver naiveSolver = new MazeSolverNaive();
+//
+//			solver.initialize(maze);
+//			naiveSolver.initialize(maze);
+//
+//			for (int i = 0; i < maze.getRows(); i ++) {
+//				for (int j = 0; j < maze.getColumns(); j++) {
+//					int endRow = (int) (Math.random() * maze.getRows());
+//					int endCol = (int) (Math.random() * maze.getColumns());
+//					System.out.println("from " + i + " to " + endRow);
+//					System.out.println("from " + j + " to " + endCol);
+//
+//					Integer bfs = solver.pathSearch(i, j, endRow, endCol);
+//					Integer dfs = naiveSolver.pathSearch(i, j, endRow, endCol);
+//					System.out.println("BFS: " + bfs + ", " + dfs + "\n");
+//				}
+//			}
+//
+//			ImprovedMazePrinter.printMaze(maze);
+//			MazePrinter.printMaze(maze);
+//
+//			for (int i = 0; i <= 9; ++i) {
+//				System.out.println("Steps " + i + " Rooms: " + solver.numReachable(i));
+//			}
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//	}
 }
