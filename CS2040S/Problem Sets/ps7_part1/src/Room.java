@@ -4,18 +4,13 @@
 public class Room {
 	private boolean westWall, eastWall, northWall, southWall;
 	public boolean onPath;
-	public int row;
-	public int col;
-	public Room parent;
 
-	Room(int row, int col, boolean north, boolean south, boolean east, boolean west) {
-		this.row = row;
-		this.col = col;
+
+	Room(boolean north, boolean south, boolean east, boolean west) {
 		this.northWall = north;
 		this.southWall = south;
 		this.eastWall = east;
 		this.westWall = west;
-
 		this.onPath = false;
 	}
 

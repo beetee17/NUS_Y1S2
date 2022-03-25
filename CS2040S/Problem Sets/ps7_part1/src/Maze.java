@@ -94,8 +94,6 @@ public class Maze {
 		for (int i = 1; i < maze.rows - 1; i += 2) {
 			for (int j = 1; j < maze.columns - 1; j += 2) {
 				maze.rooms[i / 2][j / 2] = new Room(
-						i / 2,
-						j / 2,
 						input.get(i - 1).charAt(j) == WALL, // north: i-1
 						input.get(i + 1).charAt(j) == WALL, // south: i+1
 						input.get(i).charAt(j + 1) == WALL, // east: j+1
