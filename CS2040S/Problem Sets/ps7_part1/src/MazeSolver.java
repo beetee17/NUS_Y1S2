@@ -36,6 +36,7 @@ public class MazeSolver implements IMazeSolver {
 
 	private Maze maze;
 	private boolean[][] visited;
+	private Point[][] parent;
 	private ArrayList<Integer> numReachables;
 
 	public MazeSolver() {
@@ -48,9 +49,11 @@ public class MazeSolver implements IMazeSolver {
 		this.numReachables = new ArrayList<>();
 		this.numReachables.add(1);
 		this.visited = new boolean[maze.getRows()][maze.getColumns()];
+		this.parent = new Point[maze.getRows()][maze.getColumns()];
 		for (int i = 0; i < maze.getRows(); i++) {
 			for (int j = 0; j < maze.getColumns(); j++) {
 				this.visited[i][j] = false;
+				this.parent[i][j] = null;
 			}
 		}
 	}
@@ -77,14 +80,10 @@ public class MazeSolver implements IMazeSolver {
 		ArrayList<Point> q = new ArrayList<>();
 		q.add(source);
 
-		Integer answer = null;
-
 		while(!q.isEmpty()) {
 			Point p = q.remove(0);
 			this.visited[p.getRow()][p.getCol()] = true;
 			numTillNextStep--;
-
-			if (p.equals(target)) answer = this.numReachables.size() - 1;
 
 			ArrayList<Point> nextFrontier = processCurrent(p);
 			q.addAll(nextFrontier);
@@ -95,6 +94,20 @@ public class MazeSolver implements IMazeSolver {
 				numTillNextStep += numForNextStep;
 				numForNextStep = 0;
 			}
+		}
+		return solve(target);
+	}
+
+	public Integer solve(Point target) {
+		Point parent = this.parent[target.row][target.col];
+		if (parent == null) return null;
+
+		int answer = 0;
+		this.maze.getRoom(target.row, target.col).onPath = true;
+		while (parent != null) {
+			answer++;
+			this.maze.getRoom(parent.row, parent.col).onPath = true;
+			parent = this.parent[parent.row][parent.col];
 		}
 		return answer;
 	}
@@ -108,6 +121,7 @@ public class MazeSolver implements IMazeSolver {
 				Point next = new Point(nextRow, nextCol);
 				if (!this.visited[nextRow][nextCol]) {
 					nextFrontier.add(next);
+					this.parent[nextRow][nextCol] = p;
 					this.visited[nextRow][nextCol] = true; // do not double count
 				}
 			}
@@ -137,36 +151,36 @@ public class MazeSolver implements IMazeSolver {
 		else return 0;
 	}
 
-//	public static void main(String[] args) {
-//		try {
-//			Maze maze = Maze.readMaze("maze-empty.txt");
-//			IMazeSolver solver = new MazeSolver();
-//			IMazeSolver naiveSolver = new MazeSolverNaive();
-//
-//			solver.initialize(maze);
-//			naiveSolver.initialize(maze);
-//
-//			for (int i = 0; i < maze.getRows(); i ++) {
-//				for (int j = 0; j < maze.getColumns(); j++) {
-//					int endRow = (int) (Math.random() * maze.getRows());
-//					int endCol = (int) (Math.random() * maze.getColumns());
-//					System.out.println("from " + i + " to " + endRow);
-//					System.out.println("from " + j + " to " + endCol);
-//
-//					Integer bfs = solver.pathSearch(i, j, endRow, endCol);
-//					Integer dfs = naiveSolver.pathSearch(i, j, endRow, endCol);
-//					System.out.println("BFS: " + bfs + ", " + dfs + "\n");
-//				}
-//			}
-//
-//			ImprovedMazePrinter.printMaze(maze);
-//			MazePrinter.printMaze(maze);
-//
-//			for (int i = 0; i <= 9; ++i) {
-//				System.out.println("Steps " + i + " Rooms: " + solver.numReachable(i));
-//			}
-//		} catch (Exception e) {
-//			e.printStackTrace();
-//		}
-//	}
+	public static void main(String[] args) {
+		try {
+			Maze maze = Maze.readMaze("maze-empty.txt");
+			IMazeSolver solver = new MazeSolver();
+			IMazeSolver naiveSolver = new MazeSolverNaive();
+
+			solver.initialize(maze);
+			naiveSolver.initialize(maze);
+
+			for (int i = 0; i < maze.getRows(); i ++) {
+				for (int j = 0; j < maze.getColumns(); j++) {
+					int endRow = (int) (Math.random() * maze.getRows());
+					int endCol = (int) (Math.random() * maze.getColumns());
+					System.out.println("from row " + i + " to " + endRow);
+					System.out.println("from col " + j + " to " + endCol);
+
+					Integer bfs = solver.pathSearch(i, j, endRow, endCol);
+					Integer dfs = naiveSolver.pathSearch(i, j, endRow, endCol);
+					System.out.println("BFS: " + bfs + ", DFS: " + dfs + "\n");
+				}
+			}
+
+			ImprovedMazePrinter.printMaze(maze);
+			MazePrinter.printMaze(maze);
+
+			for (int i = 0; i <= 9; ++i) {
+				System.out.println("Steps " + i + " Rooms: " + solver.numReachable(i));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
