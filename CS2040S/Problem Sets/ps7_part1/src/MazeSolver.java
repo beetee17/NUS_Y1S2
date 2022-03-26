@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 
@@ -35,25 +36,30 @@ public class MazeSolver implements IMazeSolver {
 	};
 
 	private Maze maze;
+	private boolean solved;
 	private boolean[][] visited;
 	private Point[][] parent;
 	private ArrayList<Integer> numReachables;
 
 	public MazeSolver() {
-		// TODO: Initialize variables.
+	}
+
+	private boolean isValid(int row, int col) {
+		return !(row < 0 || col < 0 || row >= maze.getRows() || col >= maze.getColumns());
 	}
 
 	@Override
 	public void initialize(Maze maze) {
 		this.maze = maze;
+		this.solved = false;
 		this.numReachables = new ArrayList<>();
-		this.numReachables.add(1);
 		this.visited = new boolean[maze.getRows()][maze.getColumns()];
 		this.parent = new Point[maze.getRows()][maze.getColumns()];
 		for (int i = 0; i < maze.getRows(); i++) {
 			for (int j = 0; j < maze.getColumns(); j++) {
 				this.visited[i][j] = false;
 				this.parent[i][j] = null;
+				this.maze.getRoom(i, j).onPath = false;
 			}
 		}
 	}
@@ -63,16 +69,13 @@ public class MazeSolver implements IMazeSolver {
 		if (maze == null)
 			throw new Exception("Oh no! You cannot call me without initializing the maze!");
 
-
-		if (startRow < 0 || startCol < 0 || startRow >= maze.getRows() || startCol >= maze.getColumns() ||
-				endRow < 0 || endCol < 0 || endRow >= maze.getRows() || endCol >= maze.getColumns())
+		if (!isValid(startRow, startCol) || !isValid(endRow, endCol))
 			throw new IllegalArgumentException("Invalid start/end coordinate");
 
 		// reset the solver
 		this.initialize(this.maze);
 
-		int numTillNextStep = 1;
-		int numForNextStep = 0;
+		int steps = 0;
 
 		Point source = new Point(startRow, startCol);
 		Point target = new Point(endRow, endCol);
@@ -81,29 +84,29 @@ public class MazeSolver implements IMazeSolver {
 		q.add(source);
 
 		while(!q.isEmpty()) {
-			Point p = q.remove(0);
-			this.visited[p.getRow()][p.getCol()] = true;
-			numTillNextStep--;
+			ArrayList<Point> nextFrontier = new ArrayList<>();
+			this.numReachables.add(0);
+			for (Point p : q) {
+				if (!this.visited[p.getRow()][p.getCol()]) {
+					this.visited[p.getRow()][p.getCol()] = true;
+					this.numReachables.set(steps, this.numReachables.get(steps) + 1);
+				}
 
-			ArrayList<Point> nextFrontier = processCurrent(p);
-			q.addAll(nextFrontier);
-			numForNextStep += nextFrontier.size();
+				if (p.equals(target)) this.solved = true;
 
-			if (numTillNextStep == 0) {
-				this.numReachables.add(numForNextStep);
-				numTillNextStep += numForNextStep;
-				numForNextStep = 0;
+				nextFrontier.addAll(processCurrent(p));
 			}
+			q = nextFrontier;
+			steps++;
 		}
-		return solve(target);
+		return this.solved ? solve(target) : null;
 	}
 
 	public Integer solve(Point target) {
-		Point parent = this.parent[target.row][target.col];
-		if (parent == null) return null;
-
 		int answer = 0;
 		this.maze.getRoom(target.row, target.col).onPath = true;
+		Point parent = this.parent[target.row][target.col];
+
 		while (parent != null) {
 			answer++;
 			this.maze.getRoom(parent.row, parent.col).onPath = true;
@@ -122,7 +125,6 @@ public class MazeSolver implements IMazeSolver {
 				if (!this.visited[nextRow][nextCol]) {
 					nextFrontier.add(next);
 					this.parent[nextRow][nextCol] = p;
-					this.visited[nextRow][nextCol] = true; // do not double count
 				}
 			}
 		}
@@ -167,8 +169,8 @@ public class MazeSolver implements IMazeSolver {
 					System.out.println("from row " + i + " to " + endRow);
 					System.out.println("from col " + j + " to " + endCol);
 
-					Integer bfs = solver.pathSearch(i, j, endRow, endCol);
 					Integer dfs = naiveSolver.pathSearch(i, j, endRow, endCol);
+					Integer bfs = solver.pathSearch(i, j, endRow, endCol);
 					System.out.println("BFS: " + bfs + ", DFS: " + dfs + "\n");
 				}
 			}
