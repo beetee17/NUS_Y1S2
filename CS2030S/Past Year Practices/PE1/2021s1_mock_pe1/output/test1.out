@@ -1,0 +1,33 @@
+jshell> new AlphaCoronavirus(1).spread(0)
+$.. ==> SARS-CoV-2 with 1.000 probability of mutating
+jshell> new AlphaCoronavirus(0.5).spread(0.51)
+$.. ==> Alpha Coronavirus with 0.450 probability of mutating
+jshell> new AlphaCoronavirus(0.5).spread(0.5)
+$.. ==> SARS-CoV-2 with 0.500 probability of mutating
+jshell> new AlphaCoronavirus(1).spread(0).spread(1)
+$.. ==> Beta Coronavirus with 0.000 probability of mutating
+jshell> new AlphaCoronavirus(1).spread(0).spread(0.5)
+$.. ==> Beta Coronavirus with 0.000 probability of mutating
+jshell> new AlphaCoronavirus(0.5).spread(0.51)
+$.. ==> Alpha Coronavirus with 0.450 probability of mutating
+jshell> new AlphaCoronavirus(0.5).spread(0.51).spread(0.4)
+$.. ==> SARS-CoV-2 with 0.450 probability of mutating
+jshell> new AlphaCoronavirus(0.5).spread(0.5)
+$.. ==> SARS-CoV-2 with 0.500 probability of mutating
+jshell> new AlphaCoronavirus(0.5).spread(0.5).spread(0.6)
+$.. ==> SARS-CoV-2 with 0.450 probability of mutating
+jshell> new AlphaCoronavirus(0.1).spread(0).spread(1).spread(1).spread(1) 
+$.. ==> SARS-CoV-2 with 0.073 probability of mutating
+jshell> new AlphaCoronavirus(0.5).spread(0.5).spread(0.6)
+$.. ==> SARS-CoV-2 with 0.450 probability of mutating
+jshell> new AlphaCoronavirus(0.5).spread(0.5).spread(0.6).spread(0.46)
+$.. ==> SARS-CoV-2 with 0.405 probability of mutating
+jshell> new AlphaCoronavirus(0.5).spread(0.5).spread(0.6).spread(0.45)
+$.. ==> Beta Coronavirus with 0.000 probability of mutating
+jshell> new SARS_CoV_2(0.3)
+$.. ==> SARS-CoV-2 with 0.300 probability of mutating
+jshell> new SARS_CoV_2(0.3).spread(0.3)
+$.. ==> Beta Coronavirus with 0.000 probability of mutating
+jshell> new BetaCoronavirus()
+$.. ==> Beta Coronavirus with 0.000 probability of mutating
+jshell> /exit

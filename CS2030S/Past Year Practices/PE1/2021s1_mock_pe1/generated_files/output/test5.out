@@ -1,0 +1,42 @@
+jshell> MaskedPerson gaogui = new MaskedPerson("Gao Gui")
+jshell> MaskedPerson yuchen = new MaskedPerson("Yu Chen")
+jshell> MaskedPerson gabriel = new MaskedPerson("Gabriel")
+jshell> MaskedPerson yuze = new MaskedPerson("Yuze")
+jshell> MaskedPerson cheehong = new MaskedPerson("Chee Hong")
+jshell> gaogui.infectWith(List.of(new AlphaCoronavirus(0.99)), 0.61)
+jshell> Arrays.toString(gaogui.transmit(1).toArray())
+$.. ==> "[Alpha Coronavirus with 0.891 probability of mutating]"
+jshell> Arrays.toString(gaogui.transmit(0.99).toArray())
+$.. ==> "[SARS-CoV-2 with 0.990 probability of mutating]"
+jshell> Arrays.toString(gaogui.transmit(0.6).toArray())
+$.. ==> "[]"
+jshell> gaogui.infectWith(List.of(new SARS_CoV_2(1)), 0.6)
+jshell> Arrays.toString(gaogui.transmit(1).toArray())
+$.. ==> "[Alpha Coronavirus with 0.891 probability of mutating]"
+jshell> Arrays.toString(gaogui.transmit(0.99).toArray())
+$.. ==> "[SARS-CoV-2 with 0.990 probability of mutating]"
+jshell> Arrays.toString(gaogui.transmit(0.6).toArray())
+$.. ==> "[]"
+jshell> yuchen.infectWith(List.of(new SARS_CoV_2(1), new AlphaCoronavirus(0.5)), 0.7);
+jshell> Arrays.toString(yuchen.transmit(0.61).toArray())
+$.. ==> "[Beta Coronavirus with 0.000 probability of mutating, Alpha Coronavirus with 0.450 probability of mutating]"
+jshell> Arrays.toString(yuchen.transmit(0.6).toArray())
+$.. ==> "[]"
+jshell> gabriel.infectWith(List.of(new AlphaCoronavirus(0.5)), 0.61)
+jshell> RandomNumberGenerator.reset()
+jshell> Contact c = new Contact(gabriel, yuze, 1)
+jshell> c = new Contact(gabriel, cheehong, 1)
+jshell> c = new Contact(yuze, cheehong, 1)
+jshell> Arrays.toString(gabriel.transmit(0.61).toArray())
+$.. ==> "[Alpha Coronavirus with 0.450 probability of mutating]"
+jshell> Arrays.toString(gabriel.transmit(0.6).toArray())
+$.. ==> "[]"
+jshell> Arrays.toString(yuze.transmit(0.61).toArray())
+$.. ==> "[Alpha Coronavirus with 0.405 probability of mutating]"
+jshell> Arrays.toString(yuze.transmit(0.6).toArray())
+$.. ==> "[]"
+jshell> Arrays.toString(cheehong.transmit(0.61).toArray())
+$.. ==> "[]"
+jshell> Arrays.toString(cheehong.transmit(0.6).toArray())
+$.. ==> "[]"
+jshell> /exit
