@@ -132,7 +132,6 @@ public class MazeSolver implements IMazeSolver {
 	}
 
 	private boolean canGoInDirection(int d, Room room) {
-
 		switch (d) {
 			case NORTH:
 				return !room.hasNorthWall();
@@ -143,7 +142,6 @@ public class MazeSolver implements IMazeSolver {
 			case WEST:
 				return !room.hasWestWall();
 		}
-
 		return false;
 	}
 
@@ -175,8 +173,12 @@ public class MazeSolver implements IMazeSolver {
 				}
 			}
 
+			Integer dfs = naiveSolver.pathSearch(0, 0, 3, 3);
+			System.out.println("DFS path length: " + dfs);
 			ImprovedMazePrinter.printMaze(maze);
-			MazePrinter.printMaze(maze);
+			Integer bfs = solver.pathSearch(0, 0, 3, 3);
+			System.out.println("BFS path length: " + bfs);
+			ImprovedMazePrinter.printMaze(maze);
 
 			for (int i = 0; i <= 9; ++i) {
 				System.out.println("Steps " + i + " Rooms: " + solver.numReachable(i));
