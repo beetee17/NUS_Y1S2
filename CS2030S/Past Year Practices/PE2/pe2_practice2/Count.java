@@ -1,17 +1,26 @@
-class Count<T> extends Aggregate<Integer,T> {
-    private Count(T val) {
-        super(1, val, null, true);
-    }
+import java.util.function.Function; 
 
-    private Count(Integer c, T val) {
-        super(c, val, null, true);
-    }
+public class Count<T> extends Aggregate<Integer, T> {
 
-    static <T> Count<T> of(T val) {
-        return new Count<T>(val);
-    }
+  private Count(T t, Integer count) {
+    super(count, t);
+  }
 
-    Count<T> map(T newVal) {
-        return new Count<T>(super.getVal() + 1, newVal);
-    }
+  public static <T> Count<T> of(T t) {
+    return new Count<>(t, 1);
+  }
+
+  @Override
+  public Count<T> map(Function<Integer, Integer> f, T t) {
+    return new Count<>(t, f.apply(this.getSeed()));
+  }
+
+  public Count<T> map(T t) {
+    return this.map(x -> x + 1, t);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("(%d, %s)", this.getSeed(), this.getT());
+  }
 }

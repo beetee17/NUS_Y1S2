@@ -1,26 +1,21 @@
-class Pair<T,R> {
-    private final T first;
-    private final R second;
+public class Pair<S, T> {
+  private final S first;
+  private final T second;
 
-    private Pair(T first, R second) {
-        this.first = first;
-        this.second = second;
-    }
+  private Pair(S first, T second) {
+    this.first = first;
+    this.second = second;
+  }
 
-    static <T,R> Pair<T,R> of(T first, R second) {
-        return new Pair<T,R>(first, second);
-    }
+  public static <S, T> Pair<S, T> of(S first, T second) {
+    return new Pair<>(first, second);
+  }
 
-    T first() {
-        return this.first;
-    }
+  public S first() {
+    return this.first;
+  }
 
-    R second() {
-        return this.second;
-    }
-
-    @Override
-    public String toString() {
-        return "(" + this.first + ", " + this.second + ")";
-    }
+  public T second() {
+    return this.second;
+  }
 }

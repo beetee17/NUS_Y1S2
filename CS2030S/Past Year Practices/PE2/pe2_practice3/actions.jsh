@@ -1,40 +1,78 @@
-Function<Room, Room> takeSword = r -> {
-    if (r.swordIsTaken()) {
+Function<List<Item>, List<Item>> takeSword = x -> {
+  List<Item> newItems = new ArrayList<>();
+  boolean swordExists = false;
+  for (Item i : x) {
+    if (i instanceof Sword) {
+      swordExists = true;
+      if (i.isTaken()) {
         System.out.println("--> You already have sword.");
-        return r.tick();
-    } else if (r.containsSword()) {
+        newItems.add(i);
+      } else {
+        newItems.add(i.take());
         System.out.println("--> You have taken sword.");
-        return new Room(r.getName(), r.getThings(), true, r.getPrev()).tick();
+      }
     } else {
-        System.out.println("--> There is no sword.");
-        return r.tick();
+      newItems.add(i);
     }
+  }
+    
+  if (!swordExists) {
+    System.out.println("--> There is no sword.");
+  }
+  
+  return newItems;
 }
 
-Function<Room, Room> killTroll = r -> {
-    if (!r.containsTroll()) {
-        System.out.println("--> There is no troll");
-        return r.tick();
-    } else if (r.swordIsTaken()) { // has troll and taken sword
-        System.out.println("--> Troll is killed.");
-        List<Thing> newThings = new ArrayList<Thing>();
-        for (Thing t : r.getThings()) {
-            if (!t.isTroll()) {
-                newThings.add(t);
-            }
-        }
-        return new Room(r.getName(), newThings, true, r.getPrev()).tick();
-    } else { // has troll but not taken sword
-        System.out.println("--> You have no sword.");
-        return r.tick();
+Function<List<Item>, List<Item>> killTroll = x -> {
+  List<Item> newItems = new ArrayList<>();
+  boolean haveSword = false;
+  for (Item i : x) {
+    if (i instanceof Sword && i.isTaken()) {
+      haveSword = true;
     }
+  }
+
+  if (!haveSword) {
+    System.out.println("--> You have no sword.");
+    return x;
+  }
+
+  boolean trollExists = false;
+  for (Item i : x) {
+    if (i instanceof Troll) {
+      trollExists = true;
+      System.out.println("--> Troll is killed.");
+    } else {
+      newItems.add(i);
+    }
+  }
+
+  if (!trollExists) {
+    System.out.println("--> There is no troll.");
+  }
+  return newItems;
 }
 
-Function<Room, Room> dropSword = r -> {
-    if (r.swordIsTaken()) {
+Function<List<Item>, List<Item>> dropSword = x -> {
+  List<Item> newItems = new ArrayList<>();
+  boolean swordExists = false;
+  for (Item i : x) {
+    if (i instanceof Sword) {
+      swordExists = true;
+      if (i.isTaken()) {
         System.out.println("--> You have dropped sword.");
-        return new Room(r.getName(), r.getThings(), false, r.getPrev()).tick();
+        newItems.add(i.drop());
+      } else {
+        newItems.add(i);
+      }
     } else {
-        return r.tick(); // dummy
+      newItems.add(i);
     }
+  }
+    
+  if (!swordExists) {
+    System.out.println("--> There is no sword.");
+  }
+  
+  return newItems;
 }

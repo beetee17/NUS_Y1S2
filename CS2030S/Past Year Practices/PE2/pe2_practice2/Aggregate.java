@@ -1,70 +1,119 @@
 import java.util.function.Function;
 
-class Aggregate<T,R> {
-    private final T val;
-    private final R obj;
-    private final Function<T, Pair<T,R>> f;
-    private boolean valid;
+public class Aggregate<S, T> {
+  private final S seed;
+  private final T t;
 
-    Aggregate(T val, R obj, Function<T, Pair<T,R>> f, boolean valid) {
-        this.val = val;
-        this.obj = obj;
-        this.f = f;
-        this.valid = valid;
+  private Aggregate() {
+    this.seed = null;
+    this.t = null;
+  } 
+
+  protected Aggregate(S seed, T t) {
+    this.seed = seed;
+    this.t = t;
+  }
+
+  public static <S, T> Aggregate<S, T> seed(S seed) {
+    return new Aggregate<>(seed, null);
+  }
+
+  public static <S, T> Aggregate<S, T> of(Function<S, Pair<S, T>> f) {
+    return new ValidAggregate<S, T>(f);
+  }
+
+  public S getSeed() {
+    return this.seed;
+  }
+
+  public T getT() {
+    return this.t;
+  }
+
+  public Aggregate<S, T> map(Function<S, S> f, T t) {
+    return new Aggregate<>(f.apply(this.seed), t);
+  }
+
+  public Aggregate<S, T> map(Function<S, Pair<S, T>> f) {
+    Pair<S, T> result = f.apply(this.seed);
+    return new Aggregate<>(result.first(), result.second());
+  }
+
+  public <U> Aggregate<S, U> flatMap(Function<T, Aggregate<S, U>> f) {
+    Aggregate<S, U> agg = f.apply(this.t);
+    Pair<S, U> result = agg.apply(this.seed);
+    return new Aggregate<>(result.first(), result.second());
+  }
+
+  public Pair<S, T> apply(S s) {
+    // Should not be called. Only called in context of flatMap, which
+    // only accepts ValidAggregate
+    return null;
+  }
+
+  @Override
+  public String toString() {
+    if (this.t == null) {
+      return String.format("(%s)", this.seed);
+    } else {
+      return String.format("(%s, %s)", this.seed, this.t);
+    }
+  }
+
+  private static final class ValidAggregate<S, T> extends Aggregate<S, T> {
+    private final Function<S, Pair<S, T>> f;
+
+    private ValidAggregate(Function<S, Pair<S, T>> f) {
+      super();
+      this.f = f;
     }
 
-    T getVal() {
-        return this.val;
+    @Override
+    public Pair<S, T> apply(S s) {
+      return this.f.apply(s);
     }
 
-    Function<T, Pair<T,R>> getFun() {
-        return this.f;
+    @Override
+    public Aggregate<S, T> map(Function<S, S> f, T t) {
+      return new InvalidAggregate<>();
     }
 
-    static <T,R> Aggregate<T,R> seed(T val) {
-        return new Aggregate<T,R>(val, null, null, true);
+    @Override
+    public Aggregate<S, T> map(Function<S, Pair<S, T>> f) {
+      return new InvalidAggregate<>();
     }
 
-    static <T,R> Aggregate<T,R> of(Function<T, Pair<T,R>> f) {
-        return new Aggregate<T,R>(null, null, f, true);
-    }
-
-    Aggregate<T,R> map(Function<T,T> f, R newObj) {
-        return new Aggregate<T,R>(f.apply(this.val), newObj, null, true);
-    }
-
-    Aggregate<T,R> map(Function<T,Pair<T,R>> f) {
-        if (this.val == null) {
-            return new Aggregate<T,R>(null, null, null, false);
-        }
-        Pair<T,R> pair = f.apply(this.val);
-        return new Aggregate<T,R>(pair.first(), pair.second(), null, true);
-    }
-
-    <S> Aggregate<T,S> flatMap(Function<R,Aggregate<T,S>> f) {
-        if (this.obj == null) {
-            return new Aggregate<T,S>(null, null, null, false);
-        }
-        Aggregate<T,S> agg = f.apply(this.obj);
-        // agg.getFun() is of type Function<T, Pair<T,S>>
-        Pair<T,S> pair = agg.getFun().apply(this.val);
-        return new Aggregate<T,S>(pair.first(), pair.second(), null, true);
+    @Override
+    public <U> Aggregate<S, U> flatMap(Function<T, Aggregate<S, U>> f) {
+      return new InvalidAggregate<>();
     }
 
     @Override
     public String toString() {
-        if (this.valid) {
-            if (this.val != null) {
-                if (this.obj != null) {
-                    return "(" + this.val + ", " + this.obj + ")";
-                } else {
-                    return "(" + this.val + ")";
-                }
-            } else {
-                return "Aggregate";
-            }
-        } else {
-            return "Invalid Aggregate";
-        }
+      return "Aggregate";
     }
+  }
+
+  private static final class InvalidAggregate<S, T> extends Aggregate<S, T> {
+
+    @Override
+    public Aggregate<S, T> map(Function<S, S> f, T t) {
+      return this;
+    }
+
+    @Override
+    public Aggregate<S, T> map(Function<S, Pair<S, T>> f) {
+      return this;
+    }
+
+    @Override
+    public <U> Aggregate<S, U> flatMap(Function<T, Aggregate<S, U>> f) {
+      return new InvalidAggregate<>();
+    }
+
+    @Override
+    public String toString() {
+      return "Invalid Aggregate";
+    }
+  }
 }
