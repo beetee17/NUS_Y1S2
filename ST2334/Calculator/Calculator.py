@@ -1,3 +1,4 @@
+from sympy import *
 from scipy.stats import binom, nbinom, poisson, expon, norm, t, chi2, f, tvar
 import numpy as np
 
@@ -6,6 +7,10 @@ def sqrt(x):
 
 def variance(sample):
     return tvar(np.array(sample))
+
+def expectation(sample, probabilities):
+    assert len(sample) == len(probabilities)
+    return np.array([sample[i] * probabilities[i] for i in range(len(sample))]).sum()
 
 def pooled_variance(sample1, sample2):
     n1 = len(sample1)
@@ -28,9 +33,9 @@ class Distribution:
         if verbose: print("P({} = {:.4f}) = {:.4f}\n".format(self.name, x, temp))
         return temp
 
-    def geqCDF(self, x, verbose=True):
-        temp = 1 - self.distribution.cdf(x)
-        if verbose: print("P({} >= {:.4f}) = {:.4f}\n".format(self.name, x, temp))
+    def gtCDF(self, x, verbose=True):
+        temp = 1 - self.leqCDF(x, verbose=False)
+        if verbose: print("P({} > {:.4f}) = {:.4f}\n".format(self.name, x, temp))
         return temp
 
     def leqCDF(self, x, verbose=True):
@@ -39,12 +44,12 @@ class Distribution:
         return temp
     
     def rangeCDF(self, a, b, verbose=True):
-        temp = self.distribution.cdf(b) - self.distribution.cdf(a) 
+        temp = self.leqCDF(b, verbose) - self.leqCDF(a, verbose) 
         if verbose: print("P({:.4f} <= {} <= {:.4f}) = {}\n".format(a, self.name, b, temp))
         return temp
 
     def mean(self, verbose=True):
-        temp = self.distribution.mean(x)
+        temp = self.distribution.mean()
         if verbose: print("E({}) = {:.4f}\n".format(self.name, temp))
         return temp
 
@@ -67,7 +72,7 @@ class Binomial(Distribution):
         super().__init__(name, binom(n, p))
         self.n = n
         self.p = p
-        print("{} ~ B({:.4f}), {:.4f}".format(name, n, p))
+        print("{} ~ B({:.4f}, {:.4f})".format(name, n, p))
 
     def __str__(self) -> str:
         return "{} ~ B({}, {})".format(self.name, self.n, self.p)
@@ -93,18 +98,18 @@ class NegativeBinomial(Distribution):
         self.p = p
         print("{} ~ NB({:.4f}), {:.4f}".format(name, k, p))
 
-    def pdf(self, x, verbose=False):
+    def pdf(self, x, verbose=True):
         temp = super().pdf(x - self.k, verbose=False)
-        if verbose: print("P(X = {}) = {}\n".format(x, temp))
+        if verbose: print("P(X = {}) = {:.4f}\n".format(x, temp))
         return temp
 
-    def cdf(self, x, verbose=False):
+    def leqCDF(self, x, verbose=True):
         temp = super().leqCDF(x - self.k, verbose=False)
-        if verbose: print("P(X <= {}) = {}\n".format(x, temp))
+        if verbose: print("P(X <= {}) = {:.4f}\n".format(x, temp))
         return temp
 
     def __str__(self) -> str:
-        return "{} ~ NB({}, {})".format(self.name, self.k, self.p)
+        return "{} ~ NB({}, {:.4f})".format(self.name, self.k, self.p)
 
 
 class Poisson(Distribution):
@@ -131,9 +136,11 @@ class Exponential(Distribution):
 
     """
     def __init__(self, alpha, name="X"):
-        super().__init__(name, expon(alpha))
+        super().__init__(name, expon(scale=1/alpha))
         self.alpha = alpha
         print("{} ~ Exp({:.4f})".format(name, alpha))
+
+
     def __str__(self) -> str:
         return "{} ~ Exp({})".format(self.name, self.alpha)
 
@@ -185,7 +192,7 @@ class T(Distribution):
     n: degrees of freedom
 
     """
-    def __init__(self, n, name="X"):
+    def __init__(self, n, name="T"):
         super().__init__(name, t(n))
         self.n = n
         print("{} ~ t({:.4f})".format(name, n))
@@ -218,7 +225,7 @@ class Chi2(Distribution):
     n: degrees of freedom
 
     """
-    def __init__(self, n, name="X"):
+    def __init__(self, n, name="Chi2"):
         super().__init__(name, chi2(n))
         self.n = n
         print("{} ~ Chi2({:.4f})".format(name, n))
@@ -254,7 +261,7 @@ class F(Distribution):
 
     """
 
-    def __init__(self, n1, n2, name="X"):
+    def __init__(self, n1, n2, name="F"):
         super().__init__(name, f(n1, n2))
         self.n1 = n1
         self.n2 = n2
